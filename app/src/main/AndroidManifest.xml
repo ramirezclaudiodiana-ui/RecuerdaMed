@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Para que la app se instale también en equipos sin cámara o sin telefonía (tablet, emulador) -->
+    <!-- Para que la app se instale también en equipos sin cámara o sin telefonía -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
@@ -37,12 +37,12 @@
             </intent-filter>
         </activity>
 
-        <!-- AGREGAR EN LA SEMANA 2, cuando existan las clases:
-
+        <!-- Recibe las alarmas y el botón "Ya lo tomé" de la notificación -->
         <receiver
             android:name=".alarm.AlarmReceiver"
             android:exported="false" />
 
+        <!-- Reprograma las alarmas tras reinicio, cambio de hora o de zona horaria -->
         <receiver
             android:name=".alarm.BootReceiver"
             android:exported="true">
@@ -53,8 +53,14 @@
             </intent-filter>
         </receiver>
 
-        AlarmaActivity la declara tu compañera (parte B), con:
-        android:showWhenLocked="true" y android:turnScreenOn="true"
+        <!-- DESCOMENTA cuando crees ui/alarma/AlarmaActivity.kt:
+        <activity
+            android:name=".ui.alarma.AlarmaActivity"
+            android:exported="false"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.RecuerdaMed" />
         -->
 
     </application>
