@@ -6,13 +6,28 @@ import android.app.NotificationManager
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.recuerdamed.data.local.AppDatabase
+import com.recuerdamed.data.preferences.PreferenciasRepository
+import com.recuerdamed.data.repository.MedicamentoRepository
+import com.recuerdamed.data.repository.TomaRepository
+import com.recuerdamed.work.RegenerarTomasWorker
+import java.util.concurrent.TimeUnit
 
 class RecuerdaMedApp : Application() {
+
+    // Una sola instancia de cada pieza para toda la app (se crean la primera vez que se usan)
+    val database by lazy { AppDatabase.obtener(this) }
+    val tomaRepository by lazy { TomaRepository(database) }
+    val medicamentoRepository by lazy { MedicamentoRepository(database, tomaRepository) }
+    val preferencias by lazy { PreferenciasRepository(this) }
 
     override fun onCreate() {
         super.onCreate()
         crearCanalDeAlarmas()
-        // programarRegeneracionDeTomas()   // descomenta cuando exista RegenerarTomasWorker
+        programarRegeneracionDeTomas()   // <-- aquí se llama
     }
 
     /**
@@ -44,8 +59,10 @@ class RecuerdaMedApp : Application() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
     }
 
-    /*
-    // Descomenta en el paso 6 de la semana 1 (necesita work-runtime-ktx y RegenerarTomasWorker)
+    /**
+     * Pide a WorkManager que corra RegenerarTomasWorker una vez al día.
+     * KEEP: si ya está programado, no se duplica cada vez que se abre la app.
+     */
     private fun programarRegeneracionDeTomas() {
         val trabajo = PeriodicWorkRequestBuilder<RegenerarTomasWorker>(1, TimeUnit.DAYS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
@@ -54,7 +71,6 @@ class RecuerdaMedApp : Application() {
             trabajo
         )
     }
-    */
 
     companion object {
         const val CANAL_ALARMAS = "alarma_medicamentos"
